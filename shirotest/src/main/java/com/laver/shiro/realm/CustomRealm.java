@@ -7,8 +7,10 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,10 +22,14 @@ import java.util.Set;
  */
 public class CustomRealm extends AuthorizingRealm {
 
+    private static final String salt=")(%&*^%$)(^^&()";
+
+
+
     Map<String,String> userMap=new HashMap<String, String>(16);
 
     {
-        userMap.put("laver","123456");
+        userMap.put("laver","0d84194d344614dbeab72bdec2670168");
 
         super.setName("customRealm");
     }
@@ -65,6 +71,7 @@ public class CustomRealm extends AuthorizingRealm {
             return null;
         }
         SimpleAuthenticationInfo authenticationInfo=new SimpleAuthenticationInfo("laver",password,"customRealm");
+        authenticationInfo.setCredentialsSalt(ByteSource.Util.bytes(salt));
 
         return authenticationInfo;
     }
@@ -73,5 +80,11 @@ public class CustomRealm extends AuthorizingRealm {
     //模拟数据库访问
     private String getPasswordByUserName(String userName){
         return userMap.get(userName);
+    }
+
+    public static void main(String[] args) {
+        Md5Hash md5Hash=new Md5Hash("123456",salt);
+        System.out.println(md5Hash);
+
     }
 }
